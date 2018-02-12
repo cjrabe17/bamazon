@@ -1,4 +1,6 @@
 var mysql = require("mysql");
+var inquirer = require("inquirer");
+var cTable = require("console.table");
 
 var connection = mysql.createConnection({
     host: "localhost",
@@ -9,17 +11,73 @@ var connection = mysql.createConnection({
 });
 
 connection.connect(function(err) {
-    if (err) throw err;
+    if (err) {
+        throw err;
+    }
     console.log("Connected as id " + connection.threadId);
-    showProducts();
+    buyProduct();
 });
 
-function showProducts() {
+function buyProduct() {
     var query = connection.query("SELECT * FROM products", function(err, res) {
-        for (var i = 0; i < res.length; i++) {
-            console.log("Product: " + res[i].product_name + " | Price: $" + res[i].price + " | Qty: " + res[i].stock_quantity);
+        if (err) {
+            throw err;
         }
-    connection.end();
+        console.table(res);
+        inquirer.prompt([
+            {
+                name: "choice",
+                type: "input",
+                message: "What is the item number of the product you would like to purchase?",
+                validate: function(value) {
+                    if (isNaN(value) === false) {
+                      return true;
+                    }
+                    return false;
+                  }
+            },
+            {
+                name: "qty",
+                type: "input",
+                message: "How many would you like to purchase?",
+                validate: function(value) {
+                    if (isNaN(value) === false) {
+                        return true;
+                    }
+                    return false;
+                }
+            }
+        ]).then(function(answer) {
+            var chosenItem;
+            for (var i = 0; i < res.length; i++) {
+                if (res[i].item_id == answer.choice) {
+                    chosenItem = res[i];
+                }
+            }
+            var chosenQty;
+            chosenQty = answer.qty;
+            if (chosenItem.stock_quantity < parseInt(chosenQty)) {
+                console.log("Insufficient quantity!");
+                buyProduct();
+            } else {
+                updateProducts(chosenItem, chosenQty);
+            }
+        });
+
+        function updateProducts(chosenItem, chosenQty) {
+            var query = connection.query("UPDATE products SET ? WHERE ?",
+            [
+                {
+                    stock_quantity: chosenItem.stock_quantity - chosenQty
+                },
+                {
+                    item_id: chosenItem.item_id
+                }
+            ], function(err, res) {
+                console.log(res.affectedRows + " products updated!\n");
+            }
+        );
+        buyProduct();
+        }
     });
-    console.log(query.sql);
 }
