@@ -70,7 +70,6 @@ function updateProducts(chosenItem, chosenQty) {
             item_id: chosenItem.item_id
         }
     ], function(err, res) {
-        console.log(res.affectedRows + " products updated!\n");
         console.log("You have successfully purchased " + chosenQty + " units of " + chosenItem.product_name + "!\nYour total is " + (chosenItem.price * chosenQty) + ".\n");
         }
     );
