@@ -28,13 +28,7 @@ function buyProduct() {
             {
                 name: "choice",
                 type: "input",
-                message: "What is the item number of the product you would like to purchase?",
-                validate: function(value) {
-                    if (isNaN(value) === false) {
-                      return true;
-                    }
-                    return false;
-                  }
+                message: "What is the item number of the product you would like to purchase?"
             },
             {
                 name: "qty",
@@ -63,21 +57,22 @@ function buyProduct() {
                 updateProducts(chosenItem, chosenQty);
             }
         });
-
-        function updateProducts(chosenItem, chosenQty) {
-            var query = connection.query("UPDATE products SET ? WHERE ?",
-            [
-                {
-                    stock_quantity: chosenItem.stock_quantity - chosenQty
-                },
-                {
-                    item_id: chosenItem.item_id
-                }
-            ], function(err, res) {
-                console.log(res.affectedRows + " products updated!\n");
-            }
-        );
-        buyProduct();
-        }
     });
+}
+
+function updateProducts(chosenItem, chosenQty) {
+    var query = connection.query("UPDATE products SET ? WHERE ?",
+    [
+        {
+            stock_quantity: chosenItem.stock_quantity - chosenQty
+        },
+        {
+            item_id: chosenItem.item_id
+        }
+    ], function(err, res) {
+        console.log(res.affectedRows + " products updated!\n");
+        console.log("You have successfully purchased " + chosenQty + " units of " + chosenItem.product_name + "!\nYour total is " + (chosenItem.price * chosenQty) + ".\n");
+        }
+    );
+    buyProduct();
 }
