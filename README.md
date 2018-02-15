@@ -1,6 +1,6 @@
 # Bamazon
 
-A command line inventory management system. Features a customer view--for displaying inventory details, prices, stock, etc--and a manager view for checking, adding, and updating inventory.
+A command line inventory management system. Features a customer view--for viewing and purchasing inventory--and a manager view for checking, adding, and updating inventory.
 
 ## Getting Started
 
